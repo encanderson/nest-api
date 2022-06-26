@@ -35,6 +35,7 @@ export class AdminService {
         email: createAdminDto.email,
         name: createAdminDto.name,
         user_id: createAdminDto.cpf,
+        password: createAdminDto.password,
         created_at: createdAt(),
         updated_at: createdAt(),
       },
@@ -50,6 +51,7 @@ export class AdminService {
         id: true,
         name: true,
         picture: true,
+        user_id: true,
       },
     });
 
@@ -68,6 +70,7 @@ export class AdminService {
         id: true,
         name: true,
         picture: true,
+        user_id: true,
       },
     });
 
@@ -94,6 +97,7 @@ export class AdminService {
         id: true,
         name: true,
         picture: true,
+        user_id: true,
       },
     });
 
