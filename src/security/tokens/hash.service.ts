@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'crypto';
 import * as bcrypt from 'bcrypt';
-import { Unauthorized } from '../errors';
+import { Unauthorized } from '../../errors';
 
 @Injectable()
-export class SecurityService {
+export class HashService {
   hashFunction(field: string) {
     const hash = createHash('sha256').update(field).digest('hex');
 

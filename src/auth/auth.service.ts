@@ -1,57 +1,24 @@
-import { randomBytes } from 'crypto';
-import * as moment from 'moment';
+import { Injectable } from '@nestjs/common';
 
 import { Response } from 'express';
-import { Forbidden, Unauthorized, ExpiredSession } from './../errors';
+import { Forbidden, Unauthorized } from './../errors';
 import { AuthDbService } from '../auth-db/auth-db-service';
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { SecurityService } from '../security/security.service';
 import { generateCode, createdAt } from '../utils';
-import { User } from '../users/entities/user.entity';
+import { HashService } from '../security/tokens/hash.service';
+import { TokensService } from '../security/tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly authDbService: AuthDbService,
-    private readonly jwtService: JwtService,
-    private readonly securityService: SecurityService,
+    private readonly hashService: HashService,
+    private readonly tokenService: TokensService,
   ) {}
-
-  async generateAccessToken(expireIn: string, user: User): Promise<string> {
-    const accessToken = this.jwtService.sign(
-      {
-        user_id: user.user_id,
-        app: user.app,
-        id: user.id,
-      },
-      {
-        expiresIn: expireIn,
-      },
-    );
-
-    return accessToken;
-  }
-
-  async generateRefreshToken(user_id: string, app: string) {
-    const expirationDate = moment().add(3, 'd').unix();
-    const newRefreshToken = randomBytes(24).toString('hex');
-
-    // TODO - set to Allowlist
-    const setKey = {
-      user_id,
-      app,
-    };
-
-    console.log(setKey);
-
-    return { newRefreshToken, expirationDate };
-  }
 
   async verifyUser(cpf: string, password: string) {
     const user = await this.authDbService.user.findUnique({
       where: {
-        user_id: this.securityService.hashFunction(cpf),
+        user_id: this.hashService.hashFunction(cpf),
       },
     });
 
@@ -59,10 +26,10 @@ export class AuthService {
       throw new Forbidden();
     }
 
-    await this.securityService.comparePassword(password, user.password);
+    await this.hashService.comparePassword(password, user.password);
 
     // TODO expireId 3m
-    const accessToken = this.generateAccessToken('30m', user);
+    const accessToken = this.tokenService.generateAccessToken('30m', user);
 
     await this.authDbService.user.update({
       where: {
@@ -79,18 +46,11 @@ export class AuthService {
   }
 
   async confirmSign(res: Response, signToken: string, accessCode: number) {
-    const decoded = this.verifyToken(signToken);
+    const decoded = this.tokenService.verifyToken(signToken);
 
-    const accessToken = await this.generateAccessToken('60', {
-      user_id: decoded.user_id,
-      app: decoded.app,
-      id: decoded.id,
-    });
+    const { accessToken, newRefreshToken } =
+      await this.tokenService.generateSignTokens(decoded);
 
-    const { newRefreshToken } = await this.generateRefreshToken(
-      decoded.user_id,
-      decoded.app,
-    );
     res.setHeader('Access-Token', accessToken);
     res.setHeader('Refresh-Token', newRefreshToken);
 
@@ -117,19 +77,5 @@ export class AuthService {
     delete user.code;
 
     return user;
-  }
-
-  verifyToken(token: string) {
-    try {
-      const decoded = this.jwtService.verify(token, {
-        secret: 'secret',
-      }) as { user_id: string; app: string; id: string };
-
-      return decoded;
-    } catch (err) {
-      if (err) {
-        throw new ExpiredSession();
-      }
-    }
   }
 }

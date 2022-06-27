@@ -2,15 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthDbService } from '../auth-db/auth-db-service';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { SecurityService } from '../security/security.service';
+import { SecurityModule } from '../security/security.module';
+import { HashService } from '../security/tokens/hash.service';
 
 describe('AdminController', () => {
   let controller: AdminController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [SecurityModule],
       controllers: [AdminController],
-      providers: [AuthDbService, SecurityService, AdminService],
+      providers: [AuthDbService, AdminService],
     }).compile();
 
     controller = module.get<AdminController>(AdminController);
@@ -25,7 +27,7 @@ describe('AdminController', () => {
   let adminController: AdminController;
   let adminService: AdminService;
   let dbService: AuthDbService;
-  let securityService: SecurityService;
+  let securityService: HashService;
 
   beforeEach(() => {
     dbService = new AuthDbService();

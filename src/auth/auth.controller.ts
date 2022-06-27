@@ -11,7 +11,10 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../security/guards/local-auth-guard';
-import { Credentials } from '../security/dto/credentials-sign';
+import {
+  CredentialsDto,
+  ConfirmSignDto,
+} from '../security/dto/credentials-sign';
 
 @ApiTags('Authentication')
 @Controller('api/v1/auth')
@@ -20,15 +23,12 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req, @Body() payload: Credentials) {
+  async login(@Request() req, @Body() payload: CredentialsDto) {
     return req.user;
   }
 
   @Post('confirm-sign')
-  async confirmSignIn(
-    @Res() res: Response,
-    @Body() payload: { accessToken: string; code: string },
-  ) {
+  async confirmSignIn(@Res() res: Response, @Body() payload: ConfirmSignDto) {
     const user = await this.authService.confirmSign(
       res,
       payload.accessToken,
