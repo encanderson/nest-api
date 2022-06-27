@@ -1,19 +1,21 @@
-import { Forbidden, Unauthorized } from './../errors';
-import { AuthDbService } from './../auth-db/auth-db.service';
+import { Forbidden } from './../errors';
+import { AuthDbService } from '../auth-db/auth-db-service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SecurityService } from '../security/security.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly authDbService: AuthDbService,
     private readonly jwtService: JwtService,
+    private readonly securityService: SecurityService,
   ) {}
 
   async verifyUser(cpf: string, password: string) {
     const user = await this.authDbService.user.findUnique({
       where: {
-        user_id: cpf,
+        user_id: this.securityService.hashFunction(cpf),
       },
     });
 
@@ -21,9 +23,7 @@ export class AuthService {
       throw new Forbidden();
     }
 
-    if (user.password !== password) {
-      throw new Unauthorized();
-    }
+    await this.securityService.comparePassword(password, user.password);
 
     const accessToken = this.jwtService.sign(
       {
