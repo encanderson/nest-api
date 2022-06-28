@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-
-export class Forbidden extends HttpException {
+import { HandleExceptions } from './HandleException';
+export class Forbidden extends HandleExceptions {
   constructor() {
-    super('Usuário não reconhecido', HttpStatus.FORBIDDEN);
+    super('Acesso nagado', 'FORBIDDEN');
   }
 }

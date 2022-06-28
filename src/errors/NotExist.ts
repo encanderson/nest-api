@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-
-export class NotExist extends HttpException {
+import { HandleExceptions } from './HandleException';
+export class NotExist extends HandleExceptions {
   constructor() {
-    super('Usuário não registrado', HttpStatus.NOT_FOUND);
+    super('Usuário não existe', 'NOT_FOUND');
   }
 }

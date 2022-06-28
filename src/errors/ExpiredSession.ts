@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-
-export class ExpiredSession extends HttpException {
+import { HandleExceptions } from './HandleException';
+export class ExpiredSession extends HandleExceptions {
   constructor() {
-    super('Sessão expirada', HttpStatus.UNAUTHORIZED);
+    super('Sessão expirada', 'UNAUTHORIZED');
   }
 }

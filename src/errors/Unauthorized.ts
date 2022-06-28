@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-
-export class Unauthorized extends HttpException {
+import { HandleExceptions } from './HandleException';
+export class Unauthorized extends HandleExceptions {
   constructor() {
-    super('Dados incorretos', HttpStatus.UNAUTHORIZED);
+    super('Verifique os seus dados', 'UNAUTHORIZED');
   }
 }

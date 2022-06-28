@@ -29,19 +29,25 @@ export class AuthService {
     await this.hashService.comparePassword(password, user.password);
 
     // TODO expireId 3m
-    const accessToken = this.tokenService.generateAccessToken('30m', user);
+    const accessToken = await this.tokenService.generateAccessToken(
+      '30m',
+      user,
+    );
+
+    const code = generateCode();
 
     await this.authDbService.user.update({
       where: {
         user_id: user.user_id,
       },
       data: {
-        code: generateCode(),
+        code: code,
         updated_at: createdAt(),
       },
     });
 
     // TODO - send code by email
+    console.log(code);
     return { token: accessToken };
   }
 

@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-
-export class Conflict extends HttpException {
+import { HandleExceptions } from './HandleException';
+export class Conflict extends HandleExceptions {
   constructor() {
-    super('Usuário já existe', HttpStatus.CONFLICT);
+    super('Usuário já existe', 'CONFLICT');
   }
 }

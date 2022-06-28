@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -15,7 +14,7 @@ import { HashService } from './hash.service';
       secret: 'secret',
     }),
   ],
-  providers: [TokensService, HashService, JwtService],
+  providers: [TokensService, HashService],
   exports: [TokensService, HashService],
 })
 export class TokensModule {}
